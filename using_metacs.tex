@@ -1,0 +1,86 @@
+\documentclass{article}
+\usepackage{xparse}
+\usepackage[table]{xcolor}
+\pagecolor{green!5}
+\usepackage{fontspec}
+\newfontfamily{\fcmu}{Latin Modern Roman}%[Colour=blue,Scale=2]
+
+\input{metacs_input.tex} 
+\newcommand{\mm}{\textsc{MetaCS}}
+\newcommand{\ff}{\par\textsc{Format:~}}
+\newcommand{\ee}{\par\textsc{Example:~}}
+\newcommand{\hh}{\par\textsc{How it works:~}}
+\newcommand{\rr}{\par\textsc{Reference:~}}
+\rowcolors{1}{violet!15}{violet!5}
+\newcommand{\reftable}[1]{%
+\begin{center}
+\begin{tabular}{l}
+#1 
+\end{tabular}
+\end{center}
+
+}
+ 
+%======================================= 
+\begin{document}
+\section{Using MetaCS}
+\mm ~provides commands for running and describing commands.
+
+\section{Running commands}
+%----------------------------
+\subsection{\cs{\cc} -- run a parameterless command (switch)}
+A switch is a control sequence (command) with no arguments, e.g. \cdrd{\itshape} which switches the current font to italic shape.
+\ff\cs{\cc}\marg{command-name}, where \meta{command-name} is without the backslash.
+\ee
+\cdrq{{\cc{itshape} This is italic.}}
+\hh \cs{\cc} uses \codedetokb{\cs:w \#1\textbackslash cs\_end:} to construct the control sequence expandably, add the backslash (\textbackslash) at the front, and then run it.
+\par If the resulting control sequence does not exist, it is no error. \cdrq{\cc{xyz}}
+\par Items passed in to the construction are expanded.
+\cdrq{\newcommand\x{o}\newcommand\xxo{abc}\cc{xx\x}}
+\rr 
+\par\reftable{\codedetokb{\cs:w \#1\textbackslash cs\_end:}\\}
+
+
+%----------------------------
+\subsection{\cs{\cd} -- run a 1-argument command}
+\cs{\cd} runs commands that take one argument, like \cdrd{\textbf{Some text}}.
+\ff\cs{\cd}\marg{command-name}\marg{argument}, where \meta{command-name} is the control sequence name without the backslash.
+\ee
+\cdrq{\cc{textbf}{Some text}}
+\cdrq{\cd{textbf}{Some more text}}
+\hh\cs{\cd} builds on \cs{\cc}'s method of constructing a command name by adding an argument.
+\par It is no compilation error if the constructed command is not defined.
+\cdrq{\cc{textbff}{Some text}}
+\rr 
+%\par\reftable{\codedetokb{\textbackslash cs:w \#1\textbackslash cs\_end: \{ \textbackslash  tl\_use:N \textbackslash l\_my\_tl \}\\}}
+%%\par\reftable{\codedetokbb{\textbackslash  cs:w \#1\textbackslash cs\_end: \{ \textbackslash  tl\_use:N \textbackslash l\_my\_tl \}}\\}
+\par\reftable{\codedetokb{\tl\_set:Nn \textbackslash l\_my\_tl \{ \#2 \}} \\ \codedetokb{\cs:w \#1\textbackslash cs\_end: \{ \textbackslash  tl\_use:N \textbackslash l\_my\_tl \}}\\}
+
+%----------------------------
+\subsection{\cs{\cdr} -- print and run code}
+\cs{\cdr} prints and runs whatever code is passed to it.
+\ff\cs{\cdr}\marg{code}
+\ee
+\cdrq{\cdr{\sffamily\large\textsc{Some text}}}
+\hh\cs{\cdr} uses \codedetok{\detokenize} to print its argument \#1, then leaves argument \#1 in the input stream.
+\rr In effect
+\par\reftable{\codedetokb{\detokenize\{\#1\}} \\ \codegeneral{\$\textbackslash mapsto\$} \\ \codegeneral{\#1} \\}
+
+
+%----------------------------
+\subsection{\cs{\cdrq} -- print and run code in quotation environment}
+\cs{\cdrq} does a \cs{\cdr} inside a \codegeneral{\textbackslash begin\{quotation\}} \ldots  \codegeneral{\textbackslash end\{quotation\}} environment.
+\ff\cs{\cdrq}\marg{code}
+\ee
+\cdrq{\cdrq{\ttfamily\tiny\color{red} Example}}
+
+
+
+
+
+
+
+
+
+\end{document}
+	
