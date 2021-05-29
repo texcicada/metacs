@@ -4,8 +4,11 @@
 \pagecolor{green!5}
 \usepackage{fontspec}
 \newfontfamily{\fcmu}{Latin Modern Roman}%[Colour=blue,Scale=2]
+\newfontfamily\ugfontb{Noto Sans Ugaritic}[Colour=brown,Scale=1.5]%for example
+
 
 \input{metacs_input.tex} 
+\input{ugtrans_input.tex} % for example
 \newcommand{\mm}{\textsc{MetaCS}}
 \newcommand{\ff}{\par\textsc{Format:~}}
 \newcommand{\ee}{\par\textsc{Example:~}}
@@ -67,20 +70,225 @@ A switch is a control sequence (command) with no arguments, e.g. \cdrd{\itshape}
 \par\reftable{\codedetokb{\detokenize\{\#1\}} \\ \codegeneral{\$\textbackslash mapsto\$} \\ \codegeneral{\#1} \\}
 
 
-%----------------------------
+%---------------------------- cdrq
 \subsection{\cs{\cdrq} -- print and run code in quotation environment}
 \cs{\cdrq} does a \cs{\cdr} inside a \codegeneral{\textbackslash begin\{quotation\}} \ldots  \codegeneral{\textbackslash end\{quotation\}} environment.
 \ff\cs{\cdrq}\marg{code}
 \ee
 \cdrq{\cdrq{\ttfamily\tiny\color{red} Example}}
+\ee
+\cdrq{\cdrq{\textsf{\textit{Another \colorbox{blue!20}{example}}}}}
+
+%---------------------------- cdq
+\subsection{\cs{\cdq} -- print code in quotation environment}
+\cs{\cdq} prints code inside a \codegeneral{\textbackslash begin\{quotation\}} \ldots  \codegeneral{\textbackslash end\{quotation\}} environment.
+\ff\cs{\cdq}\marg{code}
+\ee
+\cdrq{\cdq{\ttfamily\tiny\color{red} Example}}
+\ee
+\cdrq{\cdq{\textsf{\textit{Another \colorbox{blue!20}{example}}}}}
 
 
 
 
 
+%---------------------------- cdrd
+\cdrd[format=subsection][print formatted code]{cdrd}
+%\subsection{\cs{\cdrd} -- print formatted code}
+\cs{\cdrd} prints the code it is given. Variant typesetting formats, if desired, are selected via a key-value option. If no option is specified, then the plain style is used.
+\ff\cs{\cdrd}\oarg{style-option}\oarg{option2}\marg{code}
+\ee The heading for this subsection was produced with \cdrd[format=quote]{\cdrd[format=subsection][print formatted code]{cdrd}}
+\hh Values of the \oargv{format=} option key determine what formatting is applied.
+
+\bigskip
+List of values for the \codegeneral{format=} key:
+
+\begin{quotation}
+\begin{tabular}{ll}
+%\rowcolor{\mytheadcolour}
+\bfseries Value & \bfseries Example \\
+\hline
+\meta{None} & \cdr{\cdrd{\xyz}}\\
+head & \cdr{\cdrd[format=head]{\xyz}}\\
+custom & \cdr{\cdrd[format=custom][\bfseries\tiny\sffamily]{\xyz}}\\
+section & See outside the table. \\
+subsection & Similar to section \\
+quote & \parbox{4.5in}{\cdrd{\cdrd[format=quote]{xyz demo This is a quote}}: \\ See outside the table.} \\
+%listing & <in development> \\
+general & \cdr{\cdrd[format=general]{[format=xyz]}}\\
+detok & \cdr{\cdrd[format=detok]{\xyz}}\\
+\hline
+\end{tabular}
+\end{quotation}
+
+%%-----------------: general
+\subsubsection{\cs{\cdrd}: \cdrd[format=general]{[format=general]} key}
+This key runs the \cs{\codegeneral} macro, which prints what it is given in \codedetok{\ttfamily} format.
+\ee
+\cdrq{\cdrd[format=general]{sample plain text}}
+
+%%-----------------: detok
+\subsubsection{\cs{\cdrd}: \cdrd[format=general]{[format=detok]} key}
+This key runs the \cs{\codedetok} macro, which detokenizes what it is given and then prints it in \codedetok{\ttfamily} format.
+\ee
+\cdrq{\cdrd[format=detok]{\bfseries sample bold text}}
+
+%%-----------------: head
+\subsubsection{\cs{\cdrd}: \cdrd[format=general]{[format=head]} key}
+This key runs the \cs{\cdrdhead} macro, which formats the command something like a heading.
+\ee
+\cdrq{\cdrd[format=head]{\xyz}}
+
+%%-----------------: custom
+\subsubsection{\cs{\cdrd}: \cdrd[format=general]{[format=custom]} key}
+This key runs the \cs{\cdrdcustom} macro, which formats the command according to what was given to \oarg{option2} as switches.
+\ee
+\cdrq{\cdrd[format=custom][\bfseries\tiny\sffamily]{\xyz}}
+
+
+%%-----------------: section
+\subsubsection{\cs{\cdrd}: \cdrd[format=general]{[format=section]} key}\label{sec:secformat}
+This key runs the \cs{\cdrdsection} macro, which does \codegeneral{\textbackslash section\{\#3 -- \#2\} \textbackslash label \{ sec:\#3\}}  in terms of the parameters received from the main function.
+\rr\reftable{
+  \textbackslash group\_begin: \\
+  \textbackslash keys\_set:nn \{ codef \} \{ \#1 \} \\
+  \textbackslash tl\_use:N \textbackslash l\_codeformat\_tl [ \#2 ] \{ \#3 \} \\
+  \textbackslash group\_end: \\
+}
+\par\codegeneral{codef} receives the format option as \#1 and assigns the corresponding macro to \codegeneral{\textbackslash l\_codeformat\_tl}.
+\par The \codegeneral{codef} key set is defined as follows:
 
 
 
+\begin{latexcode}
+\tl_new:N  \l_codeformat_tl
+\tl_set:Nn \l_codeformat_tl { \cdrdplain }
+
+\keys_define:nn { codef }
+ {
+  format .choice:,
+  format / head   .code:n = \tl_set:Nn \l_codeformat_tl  { \cdrdhead },
+  format / custom   .code:n = \tl_set:Nn \l_codeformat_tl  { \cdrdcustom }, %user-code will be second option
+  format / section   .code:n = \tl_set:Nn \l_codeformat_tl  { \cdrdsection }, 
+  format / subsection   .code:n = \tl_set:Nn \l_codeformat_tl  { \cdrdsubsection }, 
+  format / quote   .code:n = \tl_set:Nn \l_codeformat_tl  { \cdrdquote }, 
+  format / listing   .code:n = \tl_set:Nn \l_codeformat_tl  { \cdrdlisting }, 
+  format / general   .code:n = \tl_set:Nn \l_codeformat_tl  { \codegeneral }, 
+  format / detok   .code:n = \tl_set:Nn \l_codeformat_tl  { \codedetok }, 
+   }
+\end{latexcode}
+
+
+%%-----------------: subsection
+\subsubsection{\cs{\cdrd}: \cdrd[format=general]{[format=subsection]} key}
+This key runs the \cs{\cdrdsubsection} macro, which does the same as \cs{\cdrdsection} but for subsections. See \S\ref{sec:secformat}.
+
+%%-----------------: quote
+\subsubsection{\cs{\cdrd}: \cdrd[format=general]{[format=quote]} key}
+This key runs the \cs{\cdrdquote} macro, which runs the \cs{\cdrdplain} macro inside a \codegeneral{\textbackslash begin\{quotation\}} \ldots  \codegeneral{\textbackslash end\{quotation\}} environment.
+\ee
+\cdrq{\cdrd[format=quote]{\xyz inside quote environment}}
+
+%%-----------------: plain
+\subsubsection{\cs{\cdrd}: no format key}
+If no format key is specified, the \cs{\cdrdplain} macro runs, which just does a \codedetok{\detokenize} formatted as  ttfamily large blue text.
+\ee
+\cdrq{\cdrd{\xyz plain formatting}}
+
+
+
+
+%---------------------------- cdpr
+\subsection{\cs{\cdpr} -- print and run command + formatted argument}
+\cs{\cdpr} prints, then runs any code given as \#1 before the argument (given as \#3) of the command (given as \#2). The pre-argument insertion can be arbitrary code, but is intended to be formatting code, e.g., for emphasis, or for font commands for a different script to make the argument visible like it would be in a code editor window.
+\ff\cs{\cdrq}\oarg{format-code}\marg{command-name}\marg{argument}
+\ee Argument is red bold
+\cdrq{\cdpr[\bfseries\color{red}]{textit}{fgh mno}}
+\ee Argument is visible Ugaritic glyphs%\sugtransrev{𐎄𐎍𐎚}\cdr{\sugtransrev{𐎄𐎍𐎚}}
+\cdrq{\cdpr[\ugfontb]{sugtransrev}{𐎄𐎍𐎚}}
+
+%---------------------------- meta - emphasis
+\section{Control Sequence Meta Commands}\label{sec:meta}
+The parts of a control sequence can be referred to in text using metacommands.
+
+\subsection{Meta Commands for emphasis}\label{sec:metaemph}
+The following table lists the metacommands that can be used for emphasis.
+
+\bigskip
+\begin{tabular}{lll}
+%\rowcolor{\mytheadcolour}
+\bfseries Meta command & \bfseries Example & \bfseries Result \\
+\hline
+\cs{\cs}\marg{macro-name} & \cdrd{\cs{\test}} & \cs{\test} \\
+\cs{\marg}\marg{mandatory argument} & \cdrd{\marg{test}} & \marg{test} \\
+\cs{\margv}\marg{mandatory argument value} & \cdrd{\margv{test}} & \margv{test} \\
+\cs{\oarg}\marg{optional argument} & \cdrd{\oarg{test}} & \oarg{test} \\
+\cs{\oargv}\marg{optional argument value} & \cdrd{\oargv{test}} & \oargv{test} \\
+\cs{\meta}\marg{meta value} & \cdrd{\meta{test}} & \meta{test} \\
+\hline
+\end{tabular}
+
+
+
+\subsection{Unemphasized Meta Commands}\label{sec:metaunemph}
+The following table lists the metacommands that can be used for unemphasized text.
+
+
+\bigskip
+\begin{tabular}{lll}
+%\rowcolor{\mytheadcolour}
+\bfseries Unemphasized Meta command & \bfseries Example & \bfseries Result \\
+\hline
+\cs{\css}\marg{cs-name} &\cdrd{\css{test}}& \css{test} \\
+\cs{\margcss}\marg{mandatory argument} &\cdrd{\margcss{test}}& \margcss{test} \\
+\cs{\margvcss}\marg{mandatory argument value} &\cdrd{\margvcss{test}}& \margvcss{test} \\
+\cs{\oargcss}\marg{optional argument} &\cdrd{\oargcss{test}}& \oargcss{test} \\
+\cs{\oargvcss}\marg{optional argument value} &\cdrd{\oargvcss{test}}& \oargvcss{test} \\
+\cs{\meta}\marg{meta value} &\cdrd{\meta{test}}& \meta{test} \\
+\hline
+\end{tabular}
+
+\section{Examples}
+The \cs{\textit}\margvcss{} command is used on a run of inline text to produce italics.
+\ee
+\cdrq{some text \textit{(a) some italic text} some more text.}
+
+The \cs{\itshape} switch switches the font over to italics. Its scope is restricted by the use of braces to form a group, or reversed by the \cs{\upshape} switch.
+\ee braces
+\cdrq{some text {\itshape (b) some italic text} some more text.}
+\ee \css{upshape}
+\cdrq{some text \itshape (c) some italic text \upshape some more text.}
+
+The \cs{\cc}\margvcss{} command runs a switch.
+\ee
+\cdrq{{ \cc{itshape}\cc{large} 123 }}
+
+The \cs{\cd}\margvcss{} command runs a command plus argument.
+\ee
+\cdrq{\cd{textit}{Sample}}
+
+The \cs{\cdrd}\margvcss{} command prints its argument, and using its option-key settings, \cs{\cdrd}\oargvcss{format=??}\margvcss{}, can print in various formats.
+\ee plain style
+\cdrq{\cdrd{\textit{Sample}}}
+\ee heading style
+\cdrq{\cdrd[format=head]{\textit}}
+\ee code style
+\cdrq{\cdrd[format=general]{define function x; print(x); }}
+
+And so on.
+
+A code listing is done with the \cdrd[format=detok]{\begin{latexcode}} \ldots \cdrd[format=detok]{\end{latexcode}} envronment.
+\ee
+\begin{latexcode}
+
+\ee plain style
+\cdrq{\cdrd{\textit{Sample}}}
+\ee heading style
+\cdrq{\cdrd[format=head]{\textit}}
+\ee code style
+\cdrq{\cdrd[format=general]{define function x; print(x); }}
+
+\end{latexcode}
 
 \end{document}
 	

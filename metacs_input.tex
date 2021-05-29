@@ -559,18 +559,23 @@ $\mapsto$
 	\tl_set:Nn \l_myc_tl { #3 }
 	{ \ttfamily\color{blue}
 %  \token_to_str:N #1
-  \detokenize{\tl_use:N \l_myb_tl}
-  \{ 
-  		\detokenize{\tl_use:N \l_myc_tl}
+  \c_backslash_str \tl_to_str:N \l_myb_tl
+%  \detokenize{ #2 }
+  \{ {
+			\tl_use:N \l_my_tl % formatting
+  		\tl_to_str:N \l_myc_tl
+%  		\detokenize{ #3 }
+			}
   \}
   }
   
   \enspace $\mapsto$ \enspace
-  
-\cs:w \tl_use:N \l_my_tl \cs_end: { { 
-									\tl_use:N \l_my_tl % formatting
-									\tl_use:N \l_myc_tl % argument
+%  \tl_show:N \l_myb_tl
+%%		\cdr{
+			\cs:w #2 \cs_end: { { 
+									#3 % argument
 									} }
+%%				}
 }%
 
 
@@ -592,6 +597,22 @@ $\mapsto$
   	\end{quotation}
 }%
 
+%------------------------------- display version: just print #1
+\NewDocumentCommand{\cdq}{ m }{%
+%	\tl_set:No \l_my_tl { #1 }
+	\begin{quotation}
+	
+	{ \ttfamily\color{blue}
+%    \tl_to_str:N \l_my_tl 
+  \detokenize{#1}
+  }
+  	\end{quotation}
+}%
+
+
+
+
+
 \tl_new:N  \l_codeformat_tl
 \tl_set:Nn \l_codeformat_tl { \cdrdplain }
 
@@ -601,6 +622,7 @@ $\mapsto$
   format / head   .code:n = \tl_set:Nn \l_codeformat_tl  { \cdrdhead },
   format / custom   .code:n = \tl_set:Nn \l_codeformat_tl  { \cdrdcustom }, %user-code will be second optiom
   format / section   .code:n = \tl_set:Nn \l_codeformat_tl  { \cdrdsection }, 
+  format / subsection   .code:n = \tl_set:Nn \l_codeformat_tl  { \cdrdsubsection }, 
   format / quote   .code:n = \tl_set:Nn \l_codeformat_tl  { \cdrdquote }, 
   format / listing   .code:n = \tl_set:Nn \l_codeformat_tl  { \cdrdlisting }, 
   format / general   .code:n = \tl_set:Nn \l_codeformat_tl  { \codegeneral }, 
@@ -736,37 +758,19 @@ $\mapsto$
 
 %------------------------------- just print #1 as code, section format
 \NewDocumentCommand{\cdrdsection}{ O{} m }{%1=format code,2=cs
-			% the o must match with incoming [ ]
-%%%			\tl_set:Nn \l_my_tl { #2 }
-%%%%				\regex_replace_all:nnN { (\c{[A-Za-z]*}) } { \cs_to_str:N \0 } \l_my_tl
-%%%				\regex_replace_all:nnN { cc } { } \l_my_tl
-%%%%%		\tl_to_str:n { \l_my_tl }
-%%%			\str_set:NV \l_my_str  \l_my_tl 
-%%%			\str_replace_all:Nnn 
-%%%															\l_my_str 
-%%%															{ ^^^^005c } 
-%%%															{ xx }
-%%%%															{ \c_backslash_str } 
-%%%%															{ \c_empty_tl }
-%%%%				\regex_replace_all:nnN { \\ } { \textbackslash ~  } \l_my_tl
-%%%%%					\tl_replace_all:Nnn	
-%%%%%															\l_my_tl 
-%%%%%															{ \ }	
-%%%%%															{ \textbackslash ~  }		
-%%%				%				\c{[A-Za-z]*} = cs
-% 			{ 
 			  \section{\textbackslash \detokenize{#2} \enspace -- \enspace #1}
 			  
 			  \label{sec:#2}
 
-%			  \section{ \tl_use:N \l_my_tl }
-%						\S \tl_use:N \l_my_tl
-%%		00 y 00 \tl_use:N \l_my_tl 00 y 00
-%		      \section{ \str_use:N \l_my_str }
-%%%		      >> \str_use:N \l_my_str <<
-%			  }
 }	%
 
+%------------------------------- just print #1 as code, subsection format
+\NewDocumentCommand{\cdrdsubsection}{ O{} m }{%1=format code,2=cs
+			  \subsection{\textbackslash \detokenize{#2} \enspace -- \enspace #1}
+			  
+			  \label{sec:#2}
+
+}	%
 
 
 %------------------------------- just print #1 as code, quotation format

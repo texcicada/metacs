@@ -481,6 +481,9 @@
 }%
 
 
+
+
+
 %------------------------------- inline maths
 \NewDocumentCommand{\cm}{ m }{%
 \tl_set:Nn \l_my_tl { $ #1 $ }
@@ -572,6 +575,26 @@ $\mapsto$
   \tl_use:N \l_my_tl
 }%
 
+%------------------------------- print and run command+argumentt separately
+\NewDocumentCommand{\cdpr}{ o m m }{%1=format,2=command,3=argument
+	\tl_set:Nn \l_my_tl { #1 }
+	\tl_set:Nn \l_myb_tl { #2 }
+	\tl_set:Nn \l_myc_tl { #3 }
+	{ \ttfamily\color{blue}
+%  \token_to_str:N #1
+  \detokenize{\tl_use:N \l_myb_tl}
+  \{ 
+  		\detokenize{\tl_use:N \l_myc_tl}
+  \}
+  }
+  
+  \enspace $\mapsto$ \enspace
+  
+\cs:w \tl_use:N \l_my_tl \cs_end: { { 
+									\tl_use:N \l_my_tl % formatting
+									\tl_use:N \l_myc_tl % argument
+									} }
+}%
 
 
 
@@ -1230,6 +1253,7 @@ Option & Example \\
 head & \cdr{\cdrd[format=head]{\xyz}}\\
 custom & \cdr{\cdrd[format=custom][\bfseries\tiny\sffamily]{\xyz}}\\
 section & See outside the table. \\
+subsection & Similar to section \\
 quote & \parbox{4.5in}{\cdrd{\cdrd[format=quote]{xyz demo This is a quote}}: \\ See outside the table.} \\
 listing & <in development> \\
 general & \cdr{\cdrd[format=general]{[format=xyz]}}\\
